@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lideyang.cms.dao.SpecialMapper">
+	
+	<resultMap type="com.lideyang.cms.domain.Special" id="specialMap">
+		<id property="id" column="id"></id>
+		<result property="title" column="title"></result>
+		<result property="abstracte" column="abstracte"></result>
+		<result property="created" column="created"></result>
+		<collection property="listArticle" column="id" ofType="com.lideyang.cms.domain.Article" select="selectArticle"></collection>
+	</resultMap>
+	<select id="searchSpecial" resultType="com.lideyang.cms.domain.Special">
+		select *,count(csa.aid) as counts from cms_special cs,cms_special_article csa where cs.id=csa.sid GROUP BY csa.sid	
+	</select>
+	
+	<select id="searchSpecialById" resultMap="specialMap">
+		select id,title,abstracte,created from cms_special
+	</select>
+	
+	<select id="selectArticle" resultType="com.lideyang.cms.domain.Article" parameterType="int">
+		select ca.id,ca.title,ca.summary,ca.content
+		from cms_article ca,cms_special_article csa,cms_special cs
+		where
+		ca.id=csa.aid and cs.id=csa.sid and cs.id=#{0}
+	</select>
+</mapper>
