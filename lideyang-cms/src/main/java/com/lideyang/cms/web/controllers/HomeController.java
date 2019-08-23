@@ -143,7 +143,19 @@ public class HomeController {
 				Page lastArticlesPage = new Page(1, 10);
 				lastArticlesPage.setTotalCount(100);//设置了总记录数，可以节省统计查询，提高性能。
 				
-				List<Article> lastArticles = articleService.gets(lastArticlesConditions, lastArticlesPage, null);
+				/*List<Article> lastArticles = articleService.gets(lastArticlesConditions, lastArticlesPage, null);*/
+				List<Article> lastArticles = new ArrayList<Article>();
+				BoundListOperations ops = redisTemplate.boundListOps("newArticles");
+				List range = ops.range(0, -1);
+				if(range!=null && range.size()>0) {
+					lastArticles = range;
+				}else {
+					lastArticles = articleService.gets(lastArticlesConditions, lastArticlesPage, null);
+					for (Article article : lastArticles) {
+						ops.rightPush(article);
+					}
+					ops.expire(1, TimeUnit.MINUTES);
+				}
 				model.addAttribute("lastArticles", lastArticles);
 			}
 		});
