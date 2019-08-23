@@ -141,7 +141,7 @@
 					</div>
 				</div><br><br>
 				
-				<div class="card">
+				<%-- <div class="card">
 					<div class="card-header">最新图片</div>
 					<div class="card-body">
 							<ol>
@@ -151,7 +151,18 @@
 								</li>
 								</c:forEach>
 							</ol>
-					</div>
+					</div>v
+				</div> --%>
+				
+				<!-- 广告 -->
+				<div>
+					${guanggao.name }<br>
+					<img src="/upload/${guanggao.url }" style="height: 100px;width: 100px;">
+					
+				</div>
+				<div>
+					共耗时${time }毫秒
+					
 				</div>
 			</div>
 		</div>

@@ -1,5 +1,8 @@
 package com.lideyang.cms.service;
 
+import java.util.List;
+
+import com.lideyang.cms.domain.Article;
 import com.lideyang.cms.domain.User;
 
 
@@ -24,4 +27,6 @@ public interface UserService {
 	public abstract void uploadPhoto(User user);
 
 	public abstract User selectById(Integer id);
+
+	public abstract List<Article> shoucanglist(Integer id);
 }

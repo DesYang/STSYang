@@ -10,6 +10,9 @@ import org.apache.ibatis.annotations.Param;
 
 import com.lideyang.cms.core.Page;
 import com.lideyang.cms.domain.Article;
+import com.lideyang.cms.domain.Guanggao;
+import com.lideyang.cms.domain.Shoucang;
+import com.lideyang.cms.utils.PageUtils;
 
 
 /**
@@ -83,5 +86,38 @@ public interface ArticleMapper {
 
 
 	public List<Article> hotarticle();
+
+
+	public int count2(String title);
+
+
+	public List<Article> articles(@Param("title")String title, @Param("pageUtils")PageUtils pageUtils);
+
+
+	public void shenhe(int id);
+
+
+	public List<Guanggao> guanggaolist();
+
+
+	public void addguanggao(Guanggao guanggao);
+
+
+	public void delguanggao(Integer id);
+
+
+	public Guanggao getguanggao(Integer id);
+
+
+	public void updateguanggao(Guanggao guanggao);
+
+
+	public void shoucang(Shoucang shoucang);
+
+
+	public void delarticles(Integer id);
+
+
+	public Integer shenheshoucang(@Param("id")Integer id, @Param("uid")Integer uid);
 
 }

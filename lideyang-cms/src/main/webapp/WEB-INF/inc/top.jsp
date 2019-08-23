@@ -32,6 +32,7 @@
 		    <a class="dropdown-item" href="/my/home">个人主页</a>
 		    <a class="dropdown-item" href="/my/profile">个人设置</a>
 		    <a class="dropdown-item" href="/my/articles">我的文章</a>
+		    <a class="dropdown-item" href="/my/shoucanglist">收藏夹</a>
 		    <div class="dropdown-divider"></div>
 		    <a class="dropdown-item" href="/logout">退出</a>
 		  </div>

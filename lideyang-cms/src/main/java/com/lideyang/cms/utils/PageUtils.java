@@ -12,9 +12,9 @@ public class PageUtils {
 	private int lastPage;
 	//数据总条数
 	private int count;
-	//每页条数
-	private int  pageSize;
-	//分页计入数
+	//每页条数  2
+	private int  pageSize; 
+	//分页计入数  1
 	private int pageRecord;
 	//分页
 	private String page;

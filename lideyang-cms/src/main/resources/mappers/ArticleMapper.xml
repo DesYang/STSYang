@@ -82,6 +82,9 @@
   </sql>
   
   <insert id="save" parameterType="com.lideyang.cms.domain.Article">
+  <selectKey keyProperty="id" resultType="int" order="AFTER">
+    select last_insert_id()
+  </selectKey>
     insert into cms_article
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="title != null">
@@ -364,6 +367,52 @@
     
     <select id="hotarticle" resultType="article">
     	select * from cms_article ORDER BY hits desc limit 10
+    </select>
+    
+    <select id="count2" resultType="int">
+    	select count(*) from cms_article where title like '%${value}%'
+    </select>
+    
+    <select id="articles" resultType="com.lideyang.cms.domain.Article">
+    	select * from cms_article where title like '%${title}%' limit #{pageUtils.pageRecord},#{pageUtils.pageSize}
+    </select>
+    
+    <update id="shenhe">
+    	update cms_article set status = 1 where id = #{0}
+    </update>
+    
+    <select id="guanggaolist" resultType="com.lideyang.cms.domain.Guanggao">
+    	select * from cms_guanggao
+    </select>
+    
+    <insert id="addguanggao">
+    	insert into cms_guanggao values (null,#{name},#{url})
+    </insert>
+    
+    <delete id="delguanggao">
+    	delete from cms_guanggao where id=#{0}
+    </delete>
+    
+    <select id="getguanggao" resultType="com.lideyang.cms.domain.Guanggao">
+    	select * from cms_guanggao where id=#{0}
+    </select>
+    
+    <update id="updateguanggao">
+    	update cms_guanggao set
+    	name=#{name}
+    	where id=#{id}
+    </update>
+    
+    <insert id="shoucang">
+    	insert into cms_shoucang values(null,#{user_id},#{article_id},#{sdate})
+    </insert>
+    
+    <delete id="delarticles">
+    	delete from cms_article where id = #{0}
+    </delete>
+    
+    <select id="shenheshoucang" resultType="int">
+    	select count(*) from cms_shoucang where article_id=#{id} and user_id=#{uid}
     </select>
 
 </mapper>

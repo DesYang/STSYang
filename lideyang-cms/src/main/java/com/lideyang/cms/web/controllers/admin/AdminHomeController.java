@@ -3,12 +3,21 @@
  */
 package com.lideyang.cms.web.controllers.admin;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +30,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.lideyang.cms.domain.Article;
+import com.lideyang.cms.domain.Guanggao;
+import com.lideyang.cms.domain.Shoucang;
 import com.lideyang.cms.domain.Special;
+import com.lideyang.cms.domain.User;
 import com.lideyang.cms.es.dao.ArticleEsDao;
 import com.lideyang.cms.service.ArticleService;
 import com.lideyang.cms.service.SpecialService;
 import com.lideyang.cms.utils.EsUtil;
 import com.lideyang.cms.utils.PageUtils;
+import com.lideyang.cms.web.Constant;
 import com.lideyang.cms.web.controllers.PassportController;
+
+import scala.collection.generic.BitOperations.Int;
 
 /**
  * 说明:
@@ -128,5 +145,134 @@ public class AdminHomeController {
 		EsUtil.articles(model, title, currentPage, articleEsDao, elasticsearchTemplate);
 		
 		return "admin/hlsearcharticle";
+	}
+	
+	@RequestMapping("/articles")
+	public String articles(Model model,@RequestParam(defaultValue="")String title,String currentPage) {
+		//分页
+		int pageSize = 3;
+		int count = articleService.count(title);
+		PageUtils pageUtils = new PageUtils(currentPage, count, pageSize);
+		
+		
+		List<Article> articles = articleService.articles(title,pageUtils);
+		
+		model.addAttribute("articles", articles);
+		model.addAttribute("page", pageUtils.getPage());
+		model.addAttribute("title", title);
+		
+		return "admin/articles";
+	}
+	
+	@ResponseBody
+	@RequestMapping("/shenhe")
+	public boolean shenhe(int id) {
+		articleService.shenhe(id);
+		return true;
+	}
+	
+	@RequestMapping("/toadd")
+	public String toadd() {
+		return "admin/addarticle";
+	}
+	
+	@RequestMapping("/addarticle")
+	public String addarticle(Article article) {
+		article.setHits(new Random().nextInt(100));
+		article.setHot(new Random().nextBoolean());
+		
+		articleService.save(article);
+		articleEsDao.save(article);
+		
+		return "redirect:/admin/articles";
+	}
+	
+	@RequestMapping("/guanggaolist")
+	public String guanggaolist(Model model) {
+		
+		List<Guanggao> guanggaolist = articleService.guanggaolist();
+		model.addAttribute("guanggaolist", guanggaolist);
+		return "admin/guanggaolist";
+	}
+	
+	@RequestMapping("/toaddguanggao")
+	public String toaddguangao() {
+		return "admin/addguanggao";
+	}
+	
+	@RequestMapping("/addguangao")
+	public String addguangao(Guanggao guanggao,MultipartFile file,HttpServletRequest request) throws IllegalStateException, IOException {
+		//上传
+		String filename = file.getOriginalFilename();		
+		String url = UUID.randomUUID().toString()+filename;
+		//路径
+		String realPath = request.getSession().getServletContext().getRealPath("/");
+		File file2 = new File(realPath+"\\upload\\"+url);
+		//上传图片
+		file.transferTo(file2);
+		//新增到数据库
+		guanggao.setUrl(url);
+		articleService.addguanggao(guanggao);
+		
+		return "redirect:/admin/guanggaolist";
+	}
+	
+	@RequestMapping("delguanggao")
+	@ResponseBody
+	public Boolean delguanggao(Integer id) {
+		articleService.delguanggao(id);
+		return true;
+	}
+	
+	@RequestMapping("toupdateguanggao")
+	public String toupdateguanggao(Integer id,Model model) {
+		Guanggao guanggao = articleService.getguanggao(id);
+		model.addAttribute("guanggao", guanggao);
+		return "/admin/updateguanggao";
+	}
+	
+	@RequestMapping("updateguanggao")
+	public String updateguanggao(Guanggao guanggao) {
+		articleService.updateguanggao(guanggao);
+		
+		return "redirect:/admin/guanggaolist";
+	}
+	
+	@RequestMapping("shoucang")
+	@ResponseBody
+	public boolean shoucang(Integer id,HttpSession session) {
+		Shoucang shoucang = new Shoucang();
+		User user = (User) session.getAttribute(Constant.LOGIN_USER);
+		System.out.println(user.getId());
+		shoucang.setArticle_id(id);
+		shoucang.setUser_id(user.getId());
+		Date date = new Date();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy:MM:dd");
+		String format = simpleDateFormat.format(date);
+		shoucang.setSdate(format);
+		articleService.shoucang(shoucang);
+		return true;
+	}
+	
+	@RequestMapping("delarticles")
+	@ResponseBody
+	public boolean delarticles(Integer id) {
+		articleService.delarticles(id);
+		return true;
+	}
+	
+	@RequestMapping("shenheshoucang")
+	@ResponseBody
+	public boolean shenheshoucang(Integer id,HttpSession session) {
+		User user = (User) session.getAttribute(Constant.LOGIN_USER);
+		System.out.println("a"+id);
+		System.out.println("u"+user.getId());
+		Integer num = articleService.shenheshoucang(id,user.getId());
+		
+		if(num>0) {
+			return false;
+		}else {
+			return true;
+		}
 	}
 }

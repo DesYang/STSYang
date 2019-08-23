@@ -3,11 +3,14 @@
  */
 package com.lideyang.cms.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
 import com.lideyang.cms.dao.UserMapper;
+import com.lideyang.cms.domain.Article;
 import com.lideyang.cms.domain.User;
 import com.lideyang.cms.service.UserService;
 
@@ -62,6 +65,12 @@ public class UserServiceImpl implements UserService {
 	public User selectById(Integer id) {
 		// TODO Auto-generated method stub
 		return userMapper.selectById(id);
+	}
+
+	@Override
+	public List<Article> shoucanglist(Integer id) {
+		// TODO Auto-generated method stub
+		return userMapper.shoucanglist(id);
 	}
 
 	

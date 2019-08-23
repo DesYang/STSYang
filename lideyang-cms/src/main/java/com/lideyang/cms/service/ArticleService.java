@@ -9,8 +9,11 @@ import org.apache.ibatis.annotations.Param;
 
 import com.lideyang.cms.core.Page;
 import com.lideyang.cms.domain.Article;
+import com.lideyang.cms.domain.Guanggao;
+import com.lideyang.cms.domain.Shoucang;
 import com.lideyang.cms.domain.Special;
 import com.lideyang.cms.domain.User;
+import com.lideyang.cms.utils.PageUtils;
 
 /**
  * 说明:
@@ -44,6 +47,28 @@ public interface ArticleService {
 	public abstract void save(Article article);
 
 	public abstract List<Article> hotarticle();
+
+	public abstract int count(String title);
+
+	public abstract List<Article> articles(String title, PageUtils pageUtils);
+
+	public abstract void shenhe(int id);
+
+	public abstract List<Guanggao> guanggaolist();
+
+	public abstract void addguanggao(Guanggao guanggao);
+
+	public abstract void delguanggao(Integer id);
+
+	public abstract Guanggao getguanggao(Integer id);
+
+	public abstract void updateguanggao(Guanggao guanggao);
+
+	public abstract void shoucang(Shoucang shoucang);
+
+	public abstract void delarticles(Integer id);
+
+	public abstract Integer shenheshoucang(Integer id, Integer uid);
 	
 
 }

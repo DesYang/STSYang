@@ -3,6 +3,9 @@
  */
 package com.lideyang.cms.dao;
 
+import java.util.List;
+
+import com.lideyang.cms.domain.Article;
 import com.lideyang.cms.domain.User;
 
 /**
@@ -28,5 +31,7 @@ public interface UserMapper {
 	public void updateById(User user);
 
 	public void uploadPhoto(User user);
+
+	public List<Article> shoucanglist(Integer id);
 	
 }

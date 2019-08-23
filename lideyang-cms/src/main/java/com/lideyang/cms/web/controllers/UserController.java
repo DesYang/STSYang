@@ -197,6 +197,17 @@ public class UserController {
 		
 		return "user-space/home";
 	}
+	
+	@RequestMapping("/shoucanglist")
+	public String shoucanglist(HttpSession session,Model model) {
+		User user = (User) session.getAttribute(Constant.LOGIN_USER);
+		
+		List<Article> list = userService.shoucanglist(user.getId());
+		
+		model.addAttribute("list", list);
+		
+		return "user-space/shoucanglist";
+	}
 	 
 
 }

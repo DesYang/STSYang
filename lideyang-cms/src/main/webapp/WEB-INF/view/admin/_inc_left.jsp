@@ -24,10 +24,20 @@
             <a class="dropdown-item" href="blank.html">Blank Page</a>
           </div>
         </li> -->
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href="/admin/Articlecategories">
             <i class="fas fa-fw fa-folder"></i>
             <span>文章管理</span></a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/articles">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>文章管理</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/guanggaolist">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>广告管理</span></a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/admin/hotarticle">

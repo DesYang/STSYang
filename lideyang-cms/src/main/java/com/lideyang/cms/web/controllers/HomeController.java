@@ -6,11 +6,15 @@ package com.lideyang.cms.web.controllers;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.data.redis.core.BoundListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +28,7 @@ import com.lideyang.cms.core.Page;
 import com.lideyang.cms.domain.Article;
 import com.lideyang.cms.domain.Category;
 import com.lideyang.cms.domain.Channel;
+import com.lideyang.cms.domain.Guanggao;
 import com.lideyang.cms.domain.Picture;
 import com.lideyang.cms.domain.Slide;
 import com.lideyang.cms.domain.Special;
@@ -54,6 +59,9 @@ public class HomeController {
 	@Resource
 	private SpecialService specialService;
 	
+	@Resource
+	private RedisTemplate redisTemplate;
+	
 	@RequestMapping({"/", "/index", "/home"})
 	public String home(
 			@RequestParam(required = false) Integer channel, //频道
@@ -63,7 +71,7 @@ public class HomeController {
 		
 		//------------------------------------
 		
-		
+		long begin = System.currentTimeMillis();
 		
 		//拼条件
 		Article conditions = new Article();
@@ -80,7 +88,19 @@ public class HomeController {
 					conditions.setHot(true);
 					
 					//热门文章时显示幻灯片
-					List<Slide> slides = slideService.getTops(5);
+					//List<Slide> slides = slideService.getTops(5);
+					List<Slide> slides = new ArrayList<Slide>();
+					BoundListOperations ops = redisTemplate.boundListOps("slides");
+					List range = ops.range(0, -1);
+					if(range!=null && range.size()>0) {
+						slides=range;
+					}else {
+						slides=slideService.getTops(5);
+						for (Slide slide : slides) {
+							ops.rightPush(slide);
+						}
+						ops.expire(1, TimeUnit.MINUTES);
+					}
 					model.addAttribute("slides", slides);
 				}
 			}
@@ -130,7 +150,21 @@ public class HomeController {
 		
 		t3.start();
 		
-		Thread t6 = new Thread(new Runnable() {
+		Thread t7 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				List<Guanggao> guanggaolist = articleService.guanggaolist();
+				Guanggao guanggao = guanggaolist.get(new Random().nextInt(guanggaolist.size()));
+				model.addAttribute("guanggao", guanggao);
+			}
+			
+		});
+		
+		t7.start();
+		
+		/*Thread t6 = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -148,7 +182,7 @@ public class HomeController {
 			}
 		});
 			
-		t6.start();
+		t6.start();*/
 		
 		Thread t4 = new Thread(new Runnable() {
 			
@@ -170,8 +204,6 @@ public class HomeController {
 			public void run() {
 				// TODO Auto-generated method stub
 				List<Special> listSpecial = specialService.searchSpecialById();
-				
-				System.out.println(listSpecial);
 					
 				model.addAttribute("listSpecial", listSpecial);
 			}
@@ -185,11 +217,14 @@ public class HomeController {
 			t3.join();
 			t4.join();
 			t5.join();
-			t6.join();
+			//t6.join();
+			t7.join();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		long end = System.currentTimeMillis();
+		model.addAttribute("time", end-begin);
 		
 		return "home";
 	}
