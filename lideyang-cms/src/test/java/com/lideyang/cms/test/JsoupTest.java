@@ -18,7 +18,7 @@ public class JsoupTest extends BaseTestCase{
 	public void testJsoup() throws IOException {
 		Document document = Jsoup.connect("https://news.163.com/19/0820/19/EN22B1B50001899O.html").get();
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1000; i++) {
 			//标题
 			String title = document.title();
 			//内容

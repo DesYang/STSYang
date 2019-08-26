@@ -150,6 +150,13 @@ public class ArticleServiceImpl implements ArticleService {
 		// TODO Auto-generated method stub
 		return articleMapper.shenheshoucang(id,uid);
 	}
+
+	@Override
+	public Article article(Integer id) {
+		// TODO Auto-generated method stub
+		return articleMapper.article(id);
+	}
+
 	
 	
 }

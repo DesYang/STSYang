@@ -297,6 +297,7 @@
     FROM cms_article
     WHERE 
 	1=1
+	<set></set>	
     <if test="article.author != null">
     	AND user_id = #{article.author.id,jdbcType=INTEGER}
     </if>
@@ -413,6 +414,10 @@
     
     <select id="shenheshoucang" resultType="int">
     	select count(*) from cms_shoucang where article_id=#{id} and user_id=#{uid}
+    </select>
+    
+    <select id="article" resultType="article">
+    	select * from cms_article where id = #{0}
     </select>
 
 </mapper>

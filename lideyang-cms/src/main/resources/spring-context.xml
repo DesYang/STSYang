@@ -24,7 +24,7 @@
 
 	<!-- kafka配置信息 -->
 	<!-- <import resource="applicationContext-kafka-consumer.xml"/>    
-	<import resource="applicationContext-kafka-producer.xml"/>  -->
+	<import resource="applicationContext-kafka-producer.xml"/> -->
 	
 	<!-- 导入es的配置文件 -->
 	<import resource="applicationContext-es.xml"/>

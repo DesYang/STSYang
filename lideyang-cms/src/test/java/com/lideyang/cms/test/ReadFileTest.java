@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.annotation.Resource;
 
@@ -21,8 +22,8 @@ import scala.util.Random;
 
 public class ReadFileTest extends BaseTestCase {
 
-	/*@Resource
-	private KafkaTemplate kafkaTemplate;*/
+	@Resource
+	private KafkaTemplate kafkaTemplate;
 	
 	
 	
@@ -69,10 +70,12 @@ public class ReadFileTest extends BaseTestCase {
 			//摘要
 			article.setSummary("我好难啊");
 			//关键字
-			article.setKeywords("我好难啊");
+			article.setKeywords(title+WordSortUtil.wordSortDesc(cotent));
+			//System.out.println(title+WordSortUtil.wordSortDesc(cotent));
+			article.setCreated(new Date());
 			
-					
-			//kafkaTemplate.send("first","addarticle",JSON.toJSONString(article));
+						
+			kafkaTemplate.send("first","addarticle",JSON.toJSONString(article));
 		}
 	}
 }

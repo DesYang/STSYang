@@ -25,7 +25,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundListOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +44,8 @@ import com.lideyang.cms.domain.User;
 import com.lideyang.cms.es.dao.ArticleEsDao;
 import com.lideyang.cms.service.ArticleService;
 import com.lideyang.cms.service.SpecialService;
+import com.lideyang.cms.service.UserService;
+import com.lideyang.cms.thread.ArticleThread;
 import com.lideyang.cms.utils.EsUtil;
 import com.lideyang.cms.utils.PageUtils;
 import com.lideyang.cms.web.Constant;
@@ -67,13 +72,22 @@ public class AdminHomeController {
 	private ArticleService articleService;
 	
 	@Resource
+	private UserService userService;
+	
+	@Resource
 	private RedisTemplate redisTemplate;
+	
+	/*@Resource
+	private KafkaTemplate kafkaTemplate;*/
 	
 	@Autowired
 	private ArticleEsDao articleEsDao;
 	
 	@Resource
 	private ElasticsearchTemplate elasticsearchTemplate;
+	
+	@Resource
+	private ThreadPoolTaskExecutor taskExecutor;
 	
 	public static Logger log = LoggerFactory.getLogger(PassportController.class);
 	
@@ -123,7 +137,7 @@ public class AdminHomeController {
 		return "admin/hotarticle";
 	}
 	
-	@RequestMapping("/searcharticle")
+	/*@RequestMapping("/searcharticle")
 	public String searcharticle(Model model,@RequestParam(defaultValue="")String title,String currentPage) {
 		long begin = System.currentTimeMillis();
 		//分页
@@ -136,6 +150,22 @@ public class AdminHomeController {
 		model.addAttribute("articles", articles);
 		model.addAttribute("page", pageUtils.getPage());
 		model.addAttribute("title", title);
+		return "admin/searcharticle";
+	}*/
+	
+	@RequestMapping("/searcharticle")
+	public String searcharticle(Model model,@RequestParam(defaultValue="")String title,String currentPage) {
+		long begin = System.currentTimeMillis();
+		int pageSize = 3;
+		int count = articleEsDao.findByTitleLike(title).size();
+		PageUtils pageUtils = new PageUtils(currentPage, count, pageSize);
+		List<Article> articles = articleEsDao.findByTitleLike(title, new PageRequest(pageUtils.getCurrentPage()-1, pageSize));
+		long end = System.currentTimeMillis();
+		
+		model.addAttribute("articles", articles);
+		model.addAttribute("title", title);
+		model.addAttribute("page", pageUtils.getPage());
+		model.addAttribute("time",end-begin );
 		return "admin/searcharticle";
 	}
 
@@ -177,9 +207,12 @@ public class AdminHomeController {
 	}
 	
 	@RequestMapping("/addarticle")
-	public String addarticle(Article article) {
+	public String addarticle(Article article,HttpSession session) {
+		User user = (User) session.getAttribute(Constant.LOGIN_USER);
+		article.setAuthor(user);
 		article.setHits(new Random().nextInt(100));
 		article.setHot(new Random().nextBoolean());
+		article.setOrglink("www.baidu.com");
 		
 		articleService.save(article);
 		articleEsDao.save(article);
@@ -275,4 +308,34 @@ public class AdminHomeController {
 			return true;
 		}
 	}
+	
+	@RequestMapping("article")
+	public String article(Integer id,Model model,HttpSession session) {
+		User user = (User) session.getAttribute(Constant.LOGIN_USER);
+		int user_id = 0;
+		if(user!=null) {
+			user_id=user.getId();
+		}
+		String key = "hits_"+id+"_"+user_id;
+		BoundValueOperations ops = redisTemplate.boundValueOps(key);		
+		Object obj = ops.get();
+		if(obj == null) {
+			/*redis*/
+			//articleService.increaseHit(id);
+			
+			/*kafka*/
+			//kafkaTemplate.send("first", "addhits", id+"");
+			
+			/*spring线程*/
+			taskExecutor.execute(new ArticleThread(articleService,id));
+			ops.set("");
+			ops.expire(10, TimeUnit.SECONDS);
+			
+		}
+		
+		Article article = articleService.selectByPrimaryKey(id);
+		model.addAttribute("l", article);
+		return "admin/article";
+	}
+	
 }

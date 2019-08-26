@@ -66,7 +66,7 @@
 				<tr>
 					<td><input type="checkbox" value="${l.id }" name="checkid"></td>
 					<td>${l.id }</td>
-					<td>${l.title }</td>
+					<td><a href="/admin/article?id=${l.id }">${l.title }</a></td>
 					<td>${l.hits }</td>
 					<td>
 						<c:if test="${l.status == 1 }">已审核</c:if>
@@ -180,6 +180,10 @@
    				},
    				"json"
    			)
+    	}
+    	
+    	function article(id){
+    		alert(id);
     	}
     </script>
   </body>

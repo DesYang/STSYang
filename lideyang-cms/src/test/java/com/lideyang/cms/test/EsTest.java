@@ -3,6 +3,7 @@ package com.lideyang.cms.test;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,10 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.lideyang.cms.BaseTestCase;
 import com.lideyang.cms.domain.Article;
+import com.lideyang.cms.domain.User;
 import com.lideyang.cms.es.dao.ArticleEsDao;
 import com.lideyang.cms.service.ArticleService;
+import com.lideyang.cms.web.Constant;
 
 public class EsTest extends BaseTestCase{
 
@@ -60,6 +63,19 @@ public class EsTest extends BaseTestCase{
 		List<Article> findByTitleLike = articleEsDao.findByTitleLike(title,pageRequest);
 		for (Article article : findByTitleLike) {
 			System.out.println(article.getTitle());
+		}
+	}
+	
+	@Test
+	public void testEsadd111() {
+		User user = new User();
+		user.setId(5);
+		Article article = new Article();
+		article.setAuthor(user);
+		List<Article> queryAll = articleService.queryAll(article);
+		for (Article article2 : queryAll) {
+			System.out.println(article2);
+			articleEsDao.save(article2);
 		}
 	}
 }

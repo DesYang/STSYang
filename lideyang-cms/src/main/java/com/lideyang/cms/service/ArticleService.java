@@ -69,6 +69,9 @@ public interface ArticleService {
 	public abstract void delarticles(Integer id);
 
 	public abstract Integer shenheshoucang(Integer id, Integer uid);
+
+	public abstract Article article(Integer id);
+
 	
 
 }

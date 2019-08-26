@@ -1,5 +1,7 @@
 package com.lideyang.cms.kafka;
 
+import java.util.List;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.listener.MessageListener;
@@ -21,14 +23,19 @@ public class ArticleConsumer implements MessageListener<String,String>{
 		
 		String key = record.key();
 		String value = record.value();
-		System.out.println(key + value);
+		//System.out.println(key + value);
 		
 		if(key != null && key.equals("addarticle")) {
 			Article article = JSONObject.parseObject(value,Article.class);
-			/*System.out.println(article.getTitle());
-			System.out.println(article.getContent());*/
+			System.out.println(article.getTitle());
+			System.out.println(article.getContent());
+			articleService.save(article);
+			//articleEsDao.save(article);
 			
+		}else if(key != null && key.equals("addhits")) {
+			int id = Integer.parseInt(value);
 			
+			articleService.increaseHit(id);
 		}
 	}
 

@@ -120,4 +120,9 @@ public interface ArticleMapper {
 
 	public Integer shenheshoucang(@Param("id")Integer id, @Param("uid")Integer uid);
 
+
+	public Article article(Integer id);
+
+
+
 }
